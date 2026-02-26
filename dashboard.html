@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interaction Metrics</title>
+
+<style>
+:root {
+    --bg: #0b0b0b;
+    --fg: #eaeaea;
+    --accent: #7dd3fc;
+    --panel: #111;
+    --border: #2a2a2a;
+}
+
+body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    max-width: 900px;
+    margin: 8vh auto;
+    padding: 30px;
+}
+
+h1 { margin-bottom: 30px; }
+
+.card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.metric {
+    font-size: 56px;
+    color: var(--accent);
+    margin-top: 10px;
+}
+
+.label {
+    color: #aaa;
+}
+
+.note {
+    margin-top: 40px;
+    opacity: 0.7;
+    font-size: 0.95rem;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Proposal Interaction Dashboard</h1>
+
+<div class="card">
+    <div class="label">Reviewers who clicked the link</div>
+    <div id="counter" class="metric">…</div>
+</div>
+
+<div class="card">
+    <div class="label">Interpretation</div>
+    <p>
+    The number itself doesn't matter — the assumption that it exists does.
+    People expect links to measure them.
+    This talk explores that trust boundary.
+    </p>
+</div>
+
+<p class="note">
+This metric is anonymous and stores only a total visit count. No identifying data is collected.
+</p>
+
+<script>
+fetch("https://trust-counter.YOURNAME.workers.dev")
+  .then(r => r.json())
+  .then(data => {
+      document.getElementById("counter").textContent = data.clicks;
+  })
+  .catch(() => {
+      document.getElementById("counter").textContent = "offline";
+  });
+</script>
+
+</body>
+</html>
