@@ -98,6 +98,11 @@ In reality, trust patterns repeat.
 
 <div class="metric" id="counter">…</div>
 <div>Total anonymous visits</div>
+<div id="presence" style="margin-top:8px;color:#9ca3af;"></div>
+
+<p id="delayedMessage" style="opacity:0; transition:opacity 1.2s ease; margin-top:30px;">
+Most visitors pause here for a moment.
+</p>
 
 <canvas id="globe"></canvas>
 
@@ -125,17 +130,32 @@ Anuoluwapo Adeleke — Security Researcher
 
 <script>
 /* ========= FETCH LIVE COUNT ========= */
-
 fetch("https://fancy-unit-dc71.anuoluwapoadeleke70.workers.dev")
 .then(r=>r.json())
 .then(data=>{
-    document.getElementById("counter").textContent=data.clicks;
-    startVisualization(data.clicks);
+    const clicks=data.clicks;
+
+    document.getElementById("counter").textContent=clicks;
+    document.getElementById("presence").textContent=
+        "You are visitor #" + clicks;
+
+    startVisualization(clicks);
+
+    revealMessage();
 })
 .catch(()=>{
     document.getElementById("counter").textContent="offline";
     startVisualization(20);
 });
+
+
+/* ========= DELAYED REVELATION ========= */
+
+function revealMessage(){
+    setTimeout(()=>{
+        document.getElementById("delayedMessage").style.opacity=1;
+    },6000);
+}
 
 
 /* ========= HEATMAP VISUAL ========= */
@@ -150,13 +170,13 @@ canvas.height=320;
 
 let points=[];
 
-/* generate pseudo global activity */
 for(let i=0;i<clicks;i++){
     points.push({
         x:Math.random()*canvas.width,
         y:Math.random()*canvas.height,
         r:Math.random()*2+1,
-        a:Math.random()
+        a:Math.random(),
+        drift:(Math.random()-0.5)*0.2
     });
 }
 
@@ -170,7 +190,11 @@ function draw(){
         ctx.fillStyle=`rgba(125,211,252,${p.a})`;
         ctx.fill();
 
-        p.a+=0.01;
+        /* subtle motion */
+        p.x+=p.drift;
+        if(p.x<0||p.x>canvas.width) p.drift*=-1;
+
+        p.a+=0.005;
         if(p.a>1)p.a=0.2;
     });
 
