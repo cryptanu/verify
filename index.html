@@ -7,47 +7,56 @@
 
 <style>
 :root {
-    --bg: #0b0b0b;
-    --fg: #eaeaea;
-    --accent: #7dd3fc;
-    --subtle: #9ca3af;
+    --bg:#0b0b0b;
+    --fg:#eaeaea;
+    --accent:#7dd3fc;
+    --subtle:#9ca3af;
+    --panel:#111;
+    --border:#2a2a2a;
 }
 
-body {
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--fg);
-    max-width: 760px;
-    margin: 12vh auto;
-    padding: 28px;
-    line-height: 1.75;
+body{
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--fg);
+    max-width:900px;
+    margin:8vh auto;
+    padding:28px;
+    line-height:1.75;
 }
 
-h1 {
-    font-size: 2.2rem;
-    margin-bottom: 1.2rem;
+h1{font-size:2.2rem;}
+h2{margin-top:60px;}
+
+.highlight{color:var(--accent);}
+
+.box{
+    margin-top:30px;
+    padding:18px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:var(--panel);
 }
 
-p {
-    margin: 1.2rem 0;
+.metric{
+    font-size:64px;
+    color:var(--accent);
+    margin:10px 0;
 }
 
-.highlight {
-    color: var(--accent);
+canvas{
+    width:100%;
+    height:320px;
+    margin-top:20px;
+    background:#050505;
+    border-radius:12px;
+    border:1px solid var(--border);
 }
 
-.box {
-    margin-top: 40px;
-    padding: 18px;
-    border: 1px solid #2a2a2a;
-    border-radius: 10px;
-    background: #111;
-}
-
-.footer {
-    margin-top: 60px;
-    font-size: 0.9rem;
-    color: var(--subtle);
+.footer{
+    margin-top:60px;
+    font-size:.9rem;
+    color:var(--subtle);
 }
 </style>
 </head>
@@ -56,44 +65,121 @@ p {
 
 <h1>You trusted this link.</h1>
 
-<p>
-Nothing bad happened.
-</p>
+<p>Nothing bad happened.</p>
 
 <p>
 But you didn’t know that before clicking.
 </p>
 
 <p>
-Most real security incidents don’t begin with code execution —
+Most real security incidents don’t begin with exploits —
 they begin with context:
 a conference document, a familiar name, a professional setting.
 </p>
 
 <p>
-You evaluated <span class="highlight">who sent it</span>, not <span class="highlight">what it did</span>.
+You evaluated <span class="highlight">who sent it</span>,
+not <span class="highlight">what it did</span>.
 </p>
 
 <div class="box">
-This page collects no data, runs no scripts, and fingerprints nothing.<br>
-The other links inside the proposal document are also non-malicious.
+This page records an anonymous visit count only.  
+No identifying data is collected.  
+No cookies, fingerprinting, or personal tracking occurs.  
+Other links in the proposal are also non-malicious.
 </div>
+
+<h2>What just happened</h2>
+
+<p>
+Each visitor assumes they are alone making a safe decision.
+In reality, trust patterns repeat.
+</p>
+
+<div class="metric" id="counter">…</div>
+<div>Total anonymous visits</div>
+
+<canvas id="globe"></canvas>
+
+<p>
+The visualization above represents how trust propagates —
+not who clicked, only that decisions accumulate.
+</p>
 
 <p>
 This is the human layer of security my session discusses.
 </p>
 
 <p>
-You can safely return to reviewing the proposal — but you will probably look at links differently now.
+You can safely return to reviewing the proposal —
+but you will probably look at links differently now.
 </p>
 
 <p>
-    Here's my portfolio: Cryptanu, you can copy and paste this link -- there's no ASCII text misrepresented. [https://github.com/cryptanu]
+Portfolio: https://github.com/cryptanu
 </p>
 
 <div class="footer">
 Anuoluwapo Adeleke — Security Researcher
 </div>
+
+<script>
+/* ========= FETCH LIVE COUNT ========= */
+
+fetch("https://trust-counter.YOURNAME.workers.dev")
+.then(r=>r.json())
+.then(data=>{
+    document.getElementById("counter").textContent=data.clicks;
+    startVisualization(data.clicks);
+})
+.catch(()=>{
+    document.getElementById("counter").textContent="offline";
+    startVisualization(20);
+});
+
+
+/* ========= HEATMAP VISUAL ========= */
+
+function startVisualization(clicks){
+
+const canvas=document.getElementById("globe");
+const ctx=canvas.getContext("2d");
+
+canvas.width=900;
+canvas.height=320;
+
+let points=[];
+
+/* generate pseudo global activity */
+for(let i=0;i<clicks;i++){
+    points.push({
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        r:Math.random()*2+1,
+        a:Math.random()
+    });
+}
+
+function draw(){
+    ctx.fillStyle="#050505";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    points.forEach(p=>{
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=`rgba(125,211,252,${p.a})`;
+        ctx.fill();
+
+        p.a+=0.01;
+        if(p.a>1)p.a=0.2;
+    });
+
+    requestAnimationFrame(draw);
+}
+
+draw();
+}
+</script>
 
 </body>
 </html>
